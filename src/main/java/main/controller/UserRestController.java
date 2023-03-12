@@ -3,6 +3,7 @@ package main.controller;
 import main.model.User;
 import org.springframework.web.bind.annotation.*;
 
+//Hello Max
 @RestController
 @RequestMapping("/")
 public class UserRestController {
