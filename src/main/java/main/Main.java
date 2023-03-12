@@ -1,5 +1,8 @@
 package main;
 
+import main.model.Course;
+import main.repositories.CourseRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,6 +20,14 @@ import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class Main {
+    @Autowired
+    CourseRepository repository;
+
+    public void doRepository(){
+        Course course = new Course();
+        repository.save(course);
+    }
+
     public static void main(String[] args){
         SpringApplication.run(Main.class,args);
     }
