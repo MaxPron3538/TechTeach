@@ -20,14 +20,6 @@ import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class Main {
-    @Autowired
-    CourseRepository repository;
-
-    public void doRepository(){
-        Course course = new Course();
-        repository.save(course);
-    }
-
     public static void main(String[] args){
         SpringApplication.run(Main.class,args);
     }
