@@ -64,4 +64,8 @@ public class Course {
     public void setLessonProgress(int lessonProgress) {
         this.lessonProgress = lessonProgress;
     }
+
+    public List<Lesson> getLessons(){
+        return lessons;
+    }
 }
