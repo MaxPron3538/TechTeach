@@ -4,6 +4,7 @@ import main.model.User;
 import org.springframework.web.bind.annotation.*;
 
 //Hello Max
+//Hello World
 @RestController
 @RequestMapping("/")
 public class UserRestController {
@@ -20,3 +21,4 @@ public class UserRestController {
         return new User();
     }
 }
+
