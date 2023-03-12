@@ -19,3 +19,4 @@ public class UserRestController {
         return new User();
     }
 }
+
