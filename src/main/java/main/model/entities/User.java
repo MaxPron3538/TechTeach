@@ -1,4 +1,4 @@
-package main.model;
+package main.model.entities;
 
 import javax.persistence.*;
 import java.util.List;
