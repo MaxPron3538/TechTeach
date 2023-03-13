@@ -1,5 +1,6 @@
 package main.controller;
 
+import main.model.entities.Course;
 import main.model.entities.User;
 import main.model.repositories.UserRepository;
 import main.model.validators.ValidatorUserData;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/")
@@ -22,9 +24,8 @@ public class UserRestController {
     public ResponseEntity<?> signIn(@RequestBody User user){
         User savedUser = userRepository.findAll().stream()
                 .filter(s -> s.getEmail().equals(user.getEmail()) && s.getPasswordHash().equals(user.getPasswordHash())).findAny().orElse(null);
-
         if (savedUser != null) {
-            return new ResponseEntity<>(savedUser, HttpStatus.OK);
+            return new ResponseEntity<>(savedUser,HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }

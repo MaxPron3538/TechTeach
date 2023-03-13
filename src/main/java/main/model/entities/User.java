@@ -15,11 +15,15 @@ public class User {
     @Enumerated(EnumType.STRING)
     public Role role;
 
-    @OneToMany(mappedBy = "teacher")
-    List<Registration> courses;
+    @ManyToMany
+    @JoinTable(
+            name = "Registration",
+            joinColumns = @JoinColumn(name = "teacher_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id"))
+    List<Course> courses;
 
-    @OneToMany(mappedBy = "user")
-    List<CourseProgress> courseProgresses;
+    @OneToMany(mappedBy = "student")
+    private List<CourseProgress> courseProgresses;
 
     public int getId() {
         return id;
@@ -59,5 +63,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+
+    public List<CourseProgress> getCourseProgresses() {
+        return courseProgresses;
+    }
+
+    public List<Course> getCourses() {
+        return courses;
     }
 }

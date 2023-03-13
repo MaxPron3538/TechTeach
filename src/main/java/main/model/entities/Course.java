@@ -14,8 +14,8 @@ public class Course {
     private String name;
     private String description;
 
-    @OneToMany(mappedBy = "course")
-    List<Registration> users;
+    @ManyToMany(mappedBy = "courses")
+    List<User> teachers;
 
     @OneToMany(mappedBy = "course")
     List<CourseProgress> courseProgresses;

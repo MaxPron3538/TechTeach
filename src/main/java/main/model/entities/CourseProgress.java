@@ -11,8 +11,8 @@ public class CourseProgress {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id",nullable = false)
-    private User user;
+    @JoinColumn(name = "student_id",nullable = false)
+    private User student;
 
     @ManyToOne
     @JoinColumn(name = "course_id",nullable = false)
@@ -30,12 +30,12 @@ public class CourseProgress {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public User getStudent() {
+        return student;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setStudent(User student) {
+        this.student = student;
     }
 
     public Course getCourse() {
