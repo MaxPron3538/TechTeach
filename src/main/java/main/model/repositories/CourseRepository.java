@@ -1,6 +1,6 @@
-package main.repositories;
+package main.model.repositories;
 
-import main.model.Course;
+import main.model.entities.Course;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

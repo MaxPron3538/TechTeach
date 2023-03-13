@@ -1,6 +1,5 @@
-package main.repositories;
-import main.model.Course;
-import main.model.CourseProgress;
+package main.model.repositories;
+import main.model.entities.CourseProgress;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
