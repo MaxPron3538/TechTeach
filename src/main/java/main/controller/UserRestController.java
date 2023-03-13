@@ -31,13 +31,15 @@ public class UserRestController {
 
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@RequestBody User user){
-        Optional<User> optionalUser = userRepository.findById(user.getId());
+        User savedUser = userRepository.findAll().stream()
+                .filter(s -> s.getEmail().equals(user.getEmail()) && s.getPasswordHash().equals(user.getPasswordHash())).findAny().orElse(null);
 
-        if (!optionalUser.isPresent()) {
+        if (savedUser == null) {
             if(ValidatorUserData.validateEmail(user.getEmail()) && ValidatorUserData.validatePassword(user.getPasswordHash())) {
                 userRepository.save(user);
                 return new ResponseEntity<>(user, HttpStatus.OK);
             }
+            return new ResponseEntity<>(user,HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
     }
