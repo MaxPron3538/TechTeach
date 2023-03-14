@@ -58,11 +58,14 @@ public class UserRestController {
     }
 
     @GetMapping("/getSession")
-    public User getUserSession(){
-        User user = new User();
-        user.setEmail(session.getAttribute("email").toString());
-        user.setPasswordHash(session.getAttribute("passwordHash").toString());
-        return user;
+    public ResponseEntity<?> getUserSession(){
+        if(!session.isNew()) {
+            User user = new User();
+            user.setEmail(session.getAttribute("email").toString());
+            user.setPasswordHash(session.getAttribute("passwordHash").toString());
+            return new ResponseEntity<>(user,HttpStatus.FOUND);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
     @GetMapping("/users")
