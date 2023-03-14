@@ -9,6 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,6 +26,9 @@ public class UserRestController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    HttpSession session;
 
     @PostMapping("/signIn")
     public ResponseEntity<?> signIn(@RequestBody User user){
@@ -37,12 +47,22 @@ public class UserRestController {
 
         if (savedUser == null) {
             if(ValidatorUserData.validateEmail(user.getEmail()) && ValidatorUserData.validatePassword(user.getPasswordHash())) {
+                session.setAttribute("email",user.getEmail());
+                session.setAttribute("passwordHash",user.getPasswordHash());
                 userRepository.save(user);
                 return new ResponseEntity<>(user, HttpStatus.OK);
             }
             return new ResponseEntity<>(user,HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
+    }
+
+    @GetMapping("/getSession")
+    public User getUserSession(){
+        User user = new User();
+        user.setEmail(session.getAttribute("email").toString());
+        user.setPasswordHash(session.getAttribute("passwordHash").toString());
+        return user;
     }
 
     @GetMapping("/users")
