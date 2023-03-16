@@ -2,17 +2,27 @@ package main.model.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import java.io.Serializable;
 import java.util.Objects;
 
 
 @Embeddable
 public class LessonKey implements Serializable {
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id",nullable = false)
     int id;
 
     @Column(name = "course_id",nullable = false)
     int courseId;
+
+    LessonKey(){}
+
+    public LessonKey(int courseId){
+        this.courseId = courseId;
+    }
 
     @Override
     public boolean equals(Object o) {

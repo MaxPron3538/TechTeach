@@ -42,5 +42,13 @@ public class Lesson {
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
     }
+
+    public LessonKey getLessonId() {
+        return lessonId;
+    }
+
+    public void setLessonId(LessonKey lessonId) {
+        this.lessonId = lessonId;
+    }
 }
 

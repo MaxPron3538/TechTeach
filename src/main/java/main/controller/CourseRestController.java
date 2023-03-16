@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -61,8 +62,8 @@ public class CourseRestController {
     }
 
     @GetMapping("/courses/submit/student")
-    public ResponseEntity<?> submitStudentOnCourse(@RequestParam("id_student") int studentId, @RequestParam("id_course") int courseId) {
-        Optional<User> optionalUser = userRepository.findById(studentId).filter(s -> s.getRole().equals(Role.user));
+    public ResponseEntity<?> submitStudentOnCourse(@RequestParam("id_user") int userId, @RequestParam("id_course") int courseId) {
+        Optional<User> optionalUser = userRepository.findById(userId).filter(s -> s.getRole().equals(Role.user));
         Optional<Course> optionalCourse = courseRepository.findById(courseId);
 
         if (optionalUser.isPresent() && optionalCourse.isPresent()) {
@@ -74,6 +75,7 @@ public class CourseRestController {
                 progress.setStudent(optionalUser.get());
                 progress.setSubscriptionType(SubscriptionType.user);
                 progress.setSubscribedAt(new Date());
+                //progress.setValid_until(date);
                 courseProgressRepository.save(progress);
                 return new ResponseEntity<>(optionalUser.get(), HttpStatus.OK);
             }
