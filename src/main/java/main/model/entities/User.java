@@ -65,7 +65,6 @@ public class User {
         this.role = role;
     }
 
-
     public List<CourseProgress> getCourseProgresses() {
         return courseProgresses;
     }

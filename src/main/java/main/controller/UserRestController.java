@@ -54,7 +54,7 @@ public class UserRestController {
         return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
     }
 
-    @GetMapping("/getSession")
+    @GetMapping("/session")
     public ResponseEntity<?> getUserSession(){
         if(!session.isNew()) {
             User user = new User();

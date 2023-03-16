@@ -29,4 +29,12 @@ public class Registration {
     public void setCourse(Course course) {
         this.course = course;
     }
+
+    public User getTeacher() {
+        return teacher;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
 }
