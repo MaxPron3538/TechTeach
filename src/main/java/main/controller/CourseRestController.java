@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/courses")
 public class CourseRestController {
 
     @Autowired
@@ -33,32 +32,23 @@ public class CourseRestController {
     @Autowired
     RegistrationRepository registrationRepository;
 
-    @GetMapping("/")
+    @GetMapping("/courses/")
     public List<Course> getAllCourses(){
         return courseRepository.findAll();
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<?> getCourseByName(@PathVariable String name){
+    @GetMapping("/courses/{name}")
+    public ResponseEntity<?> getCourseByName(@PathVariable String content){
         Course savedCourse = courseRepository.findAll().stream()
-                    .filter(s -> s.getName().equals(name)).findFirst().orElse(null);
-            if (savedCourse != null) {
-                return new ResponseEntity<>(name,HttpStatus.OK);
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-    }
+                    .filter(s -> s.getName().contains(content) || s.getDescription().contains(content)).findFirst().orElse(null);
 
-    @GetMapping("/{description}")
-    public ResponseEntity<?> getCourseByDescription(@PathVariable String description) {
-        Course savedCourse = courseRepository.findAll().stream()
-                .filter(s -> s.getName().equals(description)).findFirst().orElse(null);
-        if (savedCourse != null) {
-            return new ResponseEntity<>(description,HttpStatus.OK);
+        if(savedCourse != null) {
+            return new ResponseEntity<>(savedCourse, HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
-    @PostMapping("/add")
+    @PostMapping("/courses/")
     public ResponseEntity<?> addCourse(@RequestBody Course course){
         Course savedCourse = courseRepository.findAll().stream().filter(s -> s.getCourse_id() == course.getCourse_id()).findFirst().orElse(null);
 
@@ -70,7 +60,7 @@ public class CourseRestController {
         return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
     }
 
-    @GetMapping("/submit/student")
+    @GetMapping("/courses/submit/student")
     public ResponseEntity<?> submitStudentOnCourse(@RequestParam("id_student") int studentId, @RequestParam("id_course") int courseId) {
         Optional<User> optionalUser = userRepository.findById(studentId).filter(s -> s.getRole().equals(Role.user));
         Optional<Course> optionalCourse = courseRepository.findById(courseId);
@@ -91,7 +81,7 @@ public class CourseRestController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
-    @GetMapping("/submit/teacher")
+    @GetMapping("/courses/submit/teacher")
     public ResponseEntity<?> submitTeacherOnCourse(@RequestParam("id_teacher") int teacherId, @RequestParam("id_course") int courseId){
         Optional<User> optionalUser = userRepository.findById(teacherId).filter(s -> s.getRole().equals(Role.teacher));
         Optional<Course> optionalCourse = courseRepository.findById(courseId);
