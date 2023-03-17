@@ -1,9 +1,6 @@
 package main.model.entities;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
+import javax.persistence.*;
 
 @Entity
 public class Lesson {
@@ -43,12 +40,12 @@ public class Lesson {
         this.videoUrl = videoUrl;
     }
 
-    public LessonKey getLessonId() {
-        return lessonId;
-    }
-
     public void setLessonId(LessonKey lessonId) {
         this.lessonId = lessonId;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
     }
 }
 

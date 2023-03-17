@@ -11,7 +11,6 @@ import java.util.Objects;
 @Embeddable
 public class LessonKey implements Serializable {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id",nullable = false)
     int id;
 
@@ -20,7 +19,8 @@ public class LessonKey implements Serializable {
 
     LessonKey(){}
 
-    public LessonKey(int courseId){
+    public LessonKey(int id,int courseId){
+        this.id = id;
         this.courseId = courseId;
     }
 
@@ -36,4 +36,5 @@ public class LessonKey implements Serializable {
     public int hashCode() {
         return Objects.hash(id,courseId);
     }
+
 }
