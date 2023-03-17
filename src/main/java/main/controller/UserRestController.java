@@ -42,18 +42,20 @@ public class UserRestController {
                 .filter(s -> s.getEmail().equals(user.getEmail()) && s.getPasswordHash().equals(user.getPasswordHash())).findAny().orElse(null);
 
         if (savedUser == null) {
-            if(ValidatorUserData.validateEmail(user.getEmail()) && ValidatorUserData.validatePassword(user.getPasswordHash())) {
-                session.setAttribute("email",user.getEmail());
-                session.setAttribute("passwordHash",user.getPasswordHash());
+            if (ValidatorUserData.validateEmail(user.getEmail()) && ValidatorUserData.validatePassword(user.getPasswordHash())) {
+                session.setAttribute("email", user.getEmail());
+                session.setAttribute("passwordHash", user.getPasswordHash());
+                session.setAttribute("role", user.getRole());
                 userRepository.save(user);
+
                 return new ResponseEntity<>(user, HttpStatus.OK);
             }
-            return new ResponseEntity<>(user,HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
+        return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
     }
 
-    @GetMapping("/session")
+    @GetMapping("/getSession")
     public ResponseEntity<?> getUserSession(){
         if(!session.isNew()) {
             User user = new User();
