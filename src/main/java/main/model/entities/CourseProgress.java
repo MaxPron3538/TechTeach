@@ -1,6 +1,7 @@
 package main.model.entities;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 
@@ -18,8 +19,8 @@ public class CourseProgress {
     @JoinColumn(name = "course_id",nullable = false)
     private Course course;
 
-    private Date subscribedAt;
-    private Date valid_until;
+    private LocalDate subscribedAt;
+    private LocalDate valid_until;
     private SubscriptionType subscriptionType;
 
     public Integer getId() {
@@ -43,19 +44,19 @@ public class CourseProgress {
         this.course = course;
     }
 
-    public Date getSubscribedAt() {
+    public LocalDate getSubscribedAt() {
         return subscribedAt;
     }
 
-    public void setSubscribedAt(Date subscribedAt) {
+    public void setSubscribedAt(LocalDate subscribedAt) {
         this.subscribedAt = subscribedAt;
     }
 
-    public Date getValid_until() {
+    public LocalDate getValid_until() {
         return valid_until;
     }
 
-    public void setValid_until(Date valid_until) {
+    public void setValid_until(LocalDate valid_until) {
         this.valid_until = valid_until;
     }
 

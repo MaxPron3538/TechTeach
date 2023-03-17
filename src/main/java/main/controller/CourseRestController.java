@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.Date;
@@ -82,8 +81,12 @@ public class CourseRestController {
                 progress.setCourse(optionalCourse.get());
                 progress.setStudent(optionalUser.get());
                 progress.setSubscriptionType(SubscriptionType.user);
-                progress.setSubscribedAt(new Date());
-                //progress.setValid_until(date);
+                progress.setSubscribedAt(LocalDate.now());
+                int month = LocalDate.now().getMonth().getValue()+(int)(Math.random()*12-LocalDate.now().getMonth().getValue());
+                int day = 1+(int)(Math.random()*28);
+                progress.setValid_until(LocalDate.of(LocalDate.now().getYear(),
+                        LocalDate.now().getMonthValue()+month,day));
+
                 courseProgressRepository.save(progress);
                 return new ResponseEntity<>(optionalUser.get(), HttpStatus.OK);
             }
