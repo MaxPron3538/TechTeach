@@ -1,4 +1,4 @@
-package main.JvtToken;
+package main.JwtToken;
 
 import java.io.Serializable;
 
