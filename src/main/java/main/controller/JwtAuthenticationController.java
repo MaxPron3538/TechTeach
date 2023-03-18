@@ -1,5 +1,9 @@
-package main.JwtToken;
+package main.controller;
 
+import main.JwtToken.JwtRequest;
+import main.JwtToken.JwtResponse;
+import main.JwtToken.JwtTokenUtil;
+import main.model.services.JwtUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
