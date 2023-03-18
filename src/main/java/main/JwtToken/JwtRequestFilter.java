@@ -1,4 +1,4 @@
-package main.JvtToken;
+package main.JwtToken;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
