@@ -1,4 +1,4 @@
-package main.JwtToken;
+package main.model.JwtConfigs;
 
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;

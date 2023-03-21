@@ -1,6 +1,7 @@
 package main.controller;
 
 
+import main.model.JwtConfigs.JwtTokenUtil;
 import main.model.entities.*;
 import main.model.repositories.CourseProgressRepository;
 import main.model.repositories.CourseRepository;
@@ -13,10 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 public class CourseRestController {
@@ -34,11 +33,10 @@ public class CourseRestController {
     RegistrationRepository registrationRepository;
 
     @Autowired
-    HttpSession session;
+    private JwtTokenUtil jwtTokenUtil;
 
-    @GetMapping("/courses/")
+    @GetMapping("/courses")
     public List<Course> getAllCourses(){
-        System.out.println(session.getAttribute("email"));
         return courseRepository.findAll();
     }
 
@@ -53,9 +51,12 @@ public class CourseRestController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
-    @PostMapping("/courses/")
-    public ResponseEntity<?> addCourse(@RequestBody Course course){
-        if(session.getAttribute("role").equals(Role.admin)) {
+    @PostMapping("/courses")
+    public ResponseEntity<?> addCourse(@RequestBody Course course,@RequestHeader("Authorization") String token){
+        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")+1));
+        User user = userRepository.findByEmail(email);
+
+        if(user.getRole() == Role.teacher) {
             Course savedCourse = courseRepository.findAll().stream().filter(s -> s.getCourse_id() == course.getCourse_id()).findFirst().orElse(null);
 
             if (savedCourse == null) {
@@ -69,57 +70,56 @@ public class CourseRestController {
     }
 
     @GetMapping("/courses/submit/student")
-    public ResponseEntity<?> submitStudentOnCourse(@RequestParam("id_user") int userId, @RequestParam("id_course") int courseId) {
-        Optional<User> optionalUser = userRepository.findById(userId).filter(s -> s.getRole().equals(Role.user));
+    public ResponseEntity<?> submitStudentOnCourse(@RequestHeader("Authorization") String token,@RequestParam("id_course") int courseId) {
+        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")+1));
+        User user = userRepository.findByEmail(email);
+
         Optional<Course> optionalCourse = courseRepository.findById(courseId);
 
-        if (optionalUser.isPresent() && optionalCourse.isPresent()) {
-            CourseProgress progress = courseProgressRepository.findAll().stream().filter(s -> s.getCourse().getId() == courseId).findAny().orElse(null);
+            if (user.getRole() == Role.user && optionalCourse.isPresent()) {
+                CourseProgress progress = courseProgressRepository.findAll().stream().filter(s -> s.getCourse().getId() == courseId).findAny().orElse(null);
 
-            if (progress == null) {
-                progress = new CourseProgress();
-                progress.setCourse(optionalCourse.get());
-                progress.setStudent(optionalUser.get());
-                progress.setSubscriptionType(SubscriptionType.user);
-                progress.setSubscribedAt(LocalDate.now());
-                int month = LocalDate.now().getMonth().getValue()+(int)(Math.random()*12-LocalDate.now().getMonth().getValue());
-                int day = 1+(int)(Math.random()*28);
-                progress.setValid_until(LocalDate.of(LocalDate.now().getYear(),
-                        LocalDate.now().getMonthValue()+month,day));
+                if (progress == null) {
+                    progress = new CourseProgress();
+                    progress.setCourse(optionalCourse.get());
+                    progress.setStudent(user);
+                    progress.setSubscriptionType(SubscriptionType.user);
+                    progress.setSubscribedAt(LocalDate.now());
+                    int month = LocalDate.now().getMonth().getValue() + (int) (Math.random() * 12 - LocalDate.now().getMonth().getValue());
+                    int day = 1 + (int) (Math.random() * 28);
+                    progress.setValid_until(LocalDate.of(LocalDate.now().getYear(),
+                            LocalDate.now().getMonthValue() + month, day));
+                    courseProgressRepository.save(progress);
 
-                courseProgressRepository.save(progress);
-                return new ResponseEntity<>(optionalUser.get(), HttpStatus.OK);
-            }
-            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-    }
-
-    @GetMapping("/courses/submit/teacher")
-    public ResponseEntity<?> submitTeacherOnCourse(@RequestParam("id_teacher") int teacherId, @RequestParam("id_course") int courseId){
-        if(session.getAttribute("role").equals(Role.admin)) {
-            Optional<User> optionalUser = userRepository.findById(teacherId).filter(s -> s.getRole().equals(Role.teacher));
-            Optional<Course> optionalCourse = courseRepository.findById(courseId);
-
-            if (optionalUser.isPresent() && optionalCourse.isPresent()) {
-                Registration registration = registrationRepository.findAll().stream()
-                        .filter(s -> s.getTeacher().getId() == optionalUser.get().getId()
-                                && s.getCourse().getCourse_id() == optionalCourse.get().getCourse_id()).findAny().orElse(null);
-
-                if (registration == null) {
-                    registration = new Registration();
-                    registration.setId(new RegistrationKey(optionalUser.get().getId(), optionalCourse.get().getId()));
-                    registration.setTeacher(optionalUser.get());
-                    registration.setCourse(optionalCourse.get());
-                    registrationRepository.save(registration);
-                    User teacher = userRepository.findById(teacherId).get();
-
-                    return new ResponseEntity<>(teacher, HttpStatus.OK);
+                    return new ResponseEntity<>(user, HttpStatus.OK);
                 }
                 return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+
+    @GetMapping("/courses/submit/teacher")
+    public ResponseEntity<?> submitTeacherOnCourse(@RequestHeader("Authorization") String token, @RequestParam("id_course") int courseId){
+        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")+1));
+        User user = userRepository.findByEmail(email);
+        Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(s -> s.getCourse_id() == courseId).findAny();
+
+        if (user.getRole() == Role.teacher && optionalCourse.isPresent()) {
+            Registration registration = registrationRepository.findAll().stream()
+                    .filter(s -> s.getTeacher().getId() == user.getId()
+                            && s.getCourse().getCourse_id() == optionalCourse.get().getId()).findAny().orElse(null);
+
+            if (registration == null) {
+                registration = new Registration();
+                registration.setId(new RegistrationKey(user.getId(), optionalCourse.get().getId()));
+                registration.setTeacher(user);
+                registration.setCourse(optionalCourse.get());
+                registrationRepository.save(registration);
+
+                return new ResponseEntity<>(user, HttpStatus.OK);
+            }
+            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 }

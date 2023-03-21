@@ -23,16 +23,22 @@ public class LessonRestController {
     @Autowired
     CourseRepository courseRepository;
 
+    @GetMapping("/lessons")
+    public List<Lesson> getAllCourses(){
+        return lessonRepository.findAll();
+    }
+
     @PostMapping("/lessons")
-    public ResponseEntity<?> addLesson(@RequestBody Lesson lesson,@RequestParam("id_course") int courseId,@RequestParam("id_lesson") int lessonId){
+    public ResponseEntity<?> addLesson(@RequestBody Lesson lesson,@RequestParam("id_course") int courseId){
         Lesson saveLesson = lessonRepository.findAll().stream().filter(s -> s.getName().equals(lesson.getName())).findAny().orElse(null);
 
         if(saveLesson == null){
+            int lessonKey = lessonRepository.findAll().size()+1;
             Course saveCourse = courseRepository.findAll().stream().filter(s -> s.getCourse_id() == courseId).findAny().orElse(null);
 
             if(saveCourse != null) {
                 lesson.setCourse(saveCourse);
-                lesson.setLessonId(new LessonKey(lessonId,courseId));
+                lesson.setLessonId(new LessonKey(lessonKey,courseId));
                 lessonRepository.save(lesson);
                 saveLesson = lessonRepository.findAll().stream().filter(s -> s.getName().equals(lesson.getName())).findFirst().get();
 

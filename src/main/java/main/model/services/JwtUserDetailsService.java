@@ -1,8 +1,9 @@
 package main.model.services;
 
+import main.model.entities.User;
+import main.model.models.UserModel;
 import main.model.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,19 +16,27 @@ import java.util.ArrayList;
 public class JwtUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UserRepository repository;
+    UserRepository repository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoder bcryptEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if ("TechTeach".equals(username)) {
-            return new User("TechTeach", "$2a$10$slYQmyNdGzTn7ZLBXBChFOC9f6kFjAqPhccnP6DxlWXx2lPk1C3G6",
-                    new ArrayList<>());
-        } else {
-            throw new UsernameNotFoundException("User not found with username: " + username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = repository.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with username: " + email);
         }
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPasswordHash(),
+                new ArrayList<>());
     }
 
+    public User save(UserModel user){
+        User newUser = new User();
+        newUser.setEmail(user.getEmail());
+        newUser.setPasswordHash(bcryptEncoder.encode(user.getPasswordHash()));
+        newUser.setDisplayName(user.getDisplayName());
+        newUser.setRole(user.getRole());
+        return repository.save(newUser);
+    }
 }

@@ -1,5 +1,7 @@
 package main.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -9,8 +11,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String email;
-    private String displayName;
+
+    @JsonIgnore
     private String passwordHash;
+    private String displayName;
 
     @Enumerated(EnumType.STRING)
     public Role role;
@@ -33,9 +37,7 @@ public class User {
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getEmail() {return email;}
 
     public void setEmail(String email) {
         this.email = email;

@@ -1,4 +1,4 @@
-package main.JwtToken;
+package main.model.JwtConfigs;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import main.model.services.JwtUserDetailsService;
@@ -61,3 +61,4 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     }
 
 }
+

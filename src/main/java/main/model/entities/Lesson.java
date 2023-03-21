@@ -1,6 +1,7 @@
 package main.model.entities;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Lesson {
@@ -15,6 +16,17 @@ public class Lesson {
     private String name;
     private String description;
     private String videoUrl;
+
+    @OneToMany(mappedBy = "lesson")
+    private List<TestPoint> tests;
+
+    public List<TestPoint> getTests() {
+        return tests;
+    }
+
+    public void setTests(List<TestPoint> tests) {
+        this.tests = tests;
+    }
 
     public String getName() {
         return name;
