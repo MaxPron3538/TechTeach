@@ -69,6 +69,24 @@ public class CourseRestController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
     }
 
+    @DeleteMapping("/courses/{id}")
+    public ResponseEntity<?> deleteCourse(@RequestHeader("Authorization") String token,@RequestParam("id") int courseId){
+        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")+1));
+        User user = userRepository.findByEmail(email);
+
+        if(user.getRole() == Role.teacher) {
+            Optional<Course> optionalCourse = courseRepository.findById(courseId);
+
+            if(optionalCourse.isPresent()){
+                courseRepository.delete(optionalCourse.get());
+                return ResponseEntity.status(HttpStatus.OK).body(null);
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+
+    }
+
     @GetMapping("/courses/submit/student")
     public ResponseEntity<?> submitStudentOnCourse(@RequestHeader("Authorization") String token,@RequestParam("id_course") int courseId) {
         String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")+1));
