@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/courses")
 public class LessonRestController {
 
     @Autowired
@@ -61,7 +60,7 @@ public class LessonRestController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
     }
 
-    @DeleteMapping("/alllessons{name}")
+    @DeleteMapping("/lessons{name}")
     public ResponseEntity<?> deleteLesson(@PathVariable String name,@RequestHeader("Authorization") String token){
         String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")+1));
         User user = userRepository.findByEmail(email);
@@ -78,7 +77,7 @@ public class LessonRestController {
         return  new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/alllessons/{content}")
+    @GetMapping("/lessons/{content}")
     public ResponseEntity<?> getLessonByName(@PathVariable String content){
         Optional<Lesson> optionalLesson = lessonRepository.findAll()
                 .stream().filter(s -> s.getName().contains(content) && s.getDescription().contains(content)).findAny();
