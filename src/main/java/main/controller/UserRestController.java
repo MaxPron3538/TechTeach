@@ -20,29 +20,22 @@ import java.util.stream.Collectors;
 public class UserRestController {
 
     @Autowired
-    UserRepository repositoryUser;
-
-    @Autowired
-    CourseRepository repositoryCourse;
-
-    @Autowired
-    LessonRepository repositoryLesson;
+    UserRepository userRepository;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-
     @GetMapping("/")
     public ResponseEntity<User> getUser(@RequestHeader("Authorization") String token){
         String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
-        User user = repositoryUser.findByEmail(email);
+        User user = userRepository.findByEmail(email);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping("/courseProgresses")
     public ResponseEntity<List<CourseProgress>> getCourseProgress(@RequestHeader("Authorization") String token){
         String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
-        List<CourseProgress> courseProgresses = repositoryUser.findByEmail(email).getCourseProgresses();
+        List<CourseProgress> courseProgresses = userRepository.findByEmail(email).getCourseProgresses();
         return new ResponseEntity<>(courseProgresses,HttpStatus.OK);
     }
 
@@ -51,7 +44,7 @@ public class UserRestController {
         String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
 
         try {
-            CourseProgress progress = repositoryUser.findByEmail(email).getCourseProgresses().get(courseProgressId);
+            CourseProgress progress = userRepository.findByEmail(email).getCourseProgresses().get(courseProgressId);
             return new ResponseEntity<>(progress,HttpStatus.OK);
 
         }catch (NullPointerException ex){
@@ -62,14 +55,14 @@ public class UserRestController {
     @GetMapping("courses")
     public ResponseEntity<List<Course>> getCourses(@RequestHeader("Authorization") String token){
         String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
-        List<Course> courses = repositoryUser.findByEmail(email).getCourses();
+        List<Course> courses = userRepository.findByEmail(email).getCourses();
         return new ResponseEntity<>(courses,HttpStatus.OK);
     }
 
     @GetMapping("courses/lessons")
     public ResponseEntity<List<Lesson>> getLessons(@RequestHeader("Authorization") String token){
         String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
-        List<Lesson> lessons = repositoryUser.findByEmail(email).getCourses()
+        List<Lesson> lessons = userRepository.findByEmail(email).getCourses()
                 .stream().map(Course::getLessons).flatMap(List::stream).collect(Collectors.toList());
         return new ResponseEntity<>(lessons,HttpStatus.OK);
     }
@@ -77,7 +70,7 @@ public class UserRestController {
     @GetMapping("courses/{courseId}")
     public ResponseEntity<Course> getCourse(@RequestHeader("Authorization") String token,@PathVariable int courseId){
         String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
-        Course course = repositoryUser.findByEmail(email).getCourses()
+        Course course = userRepository.findByEmail(email).getCourses()
                 .stream().filter(o -> o.getCourse_id() == courseId).findAny().orElse(null);
 
         if(course != null){
@@ -89,7 +82,7 @@ public class UserRestController {
     @GetMapping("courses/lessons/{name}")
     public ResponseEntity<Lesson> getLesson(@RequestHeader("Authorization") String token,@PathVariable String name){
         String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
-        Lesson lesson = repositoryUser.findByEmail(email).getCourses()
+        Lesson lesson = userRepository.findByEmail(email).getCourses()
                 .stream().map(Course::getLessons).flatMap(List::stream).filter(o -> o.getName().equals(name)).findAny().orElse(null);
 
         if(lesson != null){
