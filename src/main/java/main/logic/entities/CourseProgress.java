@@ -26,10 +26,6 @@ public class CourseProgress {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
 
     public void setStudent(User student) {
         this.student = student;

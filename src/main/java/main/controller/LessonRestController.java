@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/lessons")
 public class LessonRestController {
 
     @Autowired
@@ -28,14 +29,14 @@ public class LessonRestController {
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
-    @GetMapping("/lessons")
+    @GetMapping("/")
     public List<Lesson> getAllCourses(){
         return lessonRepository.findAll();
     }
 
-    @PostMapping("/lessons")
-    public ResponseEntity<?> addLesson(@RequestBody Lesson lesson,@RequestHeader("Authorization") String token,@RequestParam("id_course") int courseId){
-        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")+1));
+    @PostMapping("/{courseId}")
+    public ResponseEntity<?> addLesson(@RequestBody Lesson lesson,@RequestHeader("Authorization") String token,@PathVariable int courseId){
+        String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
 
         if(user.getRole() == Role.teacher) {
@@ -47,7 +48,7 @@ public class LessonRestController {
 
                 if (saveCourse != null) {
                     lesson.setCourse(saveCourse);
-                    lesson.setLessonId(new LessonKey(lessonKey, courseId));
+                    lesson.setLessonId(new LessonKey(lessonKey, saveCourse.getId()));
                     lessonRepository.save(lesson);
                     saveLesson = lessonRepository.findAll().stream().filter(s -> s.getName().equals(lesson.getName())).findFirst().get();
 
@@ -60,9 +61,9 @@ public class LessonRestController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
     }
 
-    @DeleteMapping("/lessons{name}")
+    @DeleteMapping("/{name}")
     public ResponseEntity<?> deleteLesson(@PathVariable String name,@RequestHeader("Authorization") String token){
-        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")+1));
+        String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
 
         if(user.getRole() == Role.teacher){
@@ -77,7 +78,7 @@ public class LessonRestController {
         return  new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/lessons/{content}")
+    @GetMapping("/{content}")
     public ResponseEntity<?> getLessonByName(@PathVariable String content){
         Optional<Lesson> optionalLesson = lessonRepository.findAll()
                 .stream().filter(s -> s.getName().contains(content) && s.getDescription().contains(content)).findAny();

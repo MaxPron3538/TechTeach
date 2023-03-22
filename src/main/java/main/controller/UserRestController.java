@@ -12,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+@RestController
 @RequestMapping("users")
 public class UserRestController {
 
@@ -25,51 +27,39 @@ public class UserRestController {
 
     @GetMapping("/")
     public ResponseEntity<User> getUser(@RequestHeader("Authorization") String token){
-        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
+        String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping("/courseProgresses")
     public ResponseEntity<List<CourseProgress>> getCourseProgress(@RequestHeader("Authorization") String token){
-        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
+        String email = jwtTokenUtil.getUsernameFromToken(token);
         List<CourseProgress> courseProgresses = userRepository.findByEmail(email).getCourseProgresses();
         return new ResponseEntity<>(courseProgresses,HttpStatus.OK);
     }
 
     @GetMapping("/courseProgresses{id}")
-    public ResponseEntity<CourseProgress> getCourseProgress(@RequestHeader("Authorization") String token,@RequestHeader("id") int courseProgressId){
-        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
+    public ResponseEntity<CourseProgress> getCourseProgress(@RequestHeader("Authorization") String token,@PathVariable int id){
+        String email = jwtTokenUtil.getUsernameFromToken(token);
+        Optional<CourseProgress> optionalCourseProgress = userRepository.findByEmail(email).getCourseProgresses().stream().filter(s -> s.getId() == id).findAny();
 
-        try {
-            CourseProgress progress = userRepository.findByEmail(email).getCourseProgresses().get(courseProgressId);
-            return new ResponseEntity<>(progress,HttpStatus.OK);
-
-        }catch (NullPointerException ex){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+        return optionalCourseProgress.map(courseProgress -> new ResponseEntity<>(courseProgress, HttpStatus.OK))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
     @GetMapping("courses")
     public ResponseEntity<List<Course>> getCourses(@RequestHeader("Authorization") String token){
-        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
-        List<Course> courses = userRepository.findByEmail(email).getCourses();
+        String email = jwtTokenUtil.getUsernameFromToken(token);
+        List<Course> courses = userRepository.findByEmail(email).getCourseProgresses().stream().map(CourseProgress::getCourse).collect(Collectors.toList());
         return new ResponseEntity<>(courses,HttpStatus.OK);
     }
 
-    @GetMapping("courses/lessons")
-    public ResponseEntity<List<Lesson>> getLessons(@RequestHeader("Authorization") String token){
-        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
-        List<Lesson> lessons = userRepository.findByEmail(email).getCourses()
-                .stream().map(Course::getLessons).flatMap(List::stream).collect(Collectors.toList());
-        return new ResponseEntity<>(lessons,HttpStatus.OK);
-    }
-
-    @GetMapping("courses/{courseId}")
-    public ResponseEntity<Course> getCourse(@RequestHeader("Authorization") String token,@PathVariable int courseId){
-        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
+    @GetMapping("courses/{id}")
+    public ResponseEntity<Course> getCourse(@RequestHeader("Authorization") String token,@PathVariable int id){
+        String email = jwtTokenUtil.getUsernameFromToken(token);
         Course course = userRepository.findByEmail(email).getCourses()
-                .stream().filter(o -> o.getCourse_id() == courseId).findAny().orElse(null);
+                .stream().filter(o -> o.getCourse_id() == id).findAny().orElse(null);
 
         if(course != null){
             return new ResponseEntity<>(course,HttpStatus.OK);
@@ -77,15 +67,34 @@ public class UserRestController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
+
+    @GetMapping("courses/{id}/lessons")
+    public ResponseEntity<List<Lesson>> getLessons(@RequestHeader("Authorization") String token,@PathVariable int id){
+        String email = jwtTokenUtil.getUsernameFromToken(token);
+        List<Lesson> lessons = userRepository.findByEmail(email).getCourseProgresses()
+                .stream().map(CourseProgress::getCourse).filter(o -> o.getCourse_id() == id)
+                .map(Course::getLessons).flatMap(List::stream).collect(Collectors.toList());
+
+        return new ResponseEntity<>(lessons,HttpStatus.OK);
+    }
+
     @GetMapping("courses/lessons/{name}")
     public ResponseEntity<Lesson> getLesson(@RequestHeader("Authorization") String token,@PathVariable String name){
-        String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
-        Lesson lesson = userRepository.findByEmail(email).getCourses()
-                .stream().map(Course::getLessons).flatMap(List::stream).filter(o -> o.getName().equals(name)).findAny().orElse(null);
+        String email = jwtTokenUtil.getUsernameFromToken(token);
+        Optional<Lesson> optionalLesson = userRepository.findByEmail(email).getCourseProgresses().stream().map(CourseProgress::getCourse)
+                .map(Course::getLessons).flatMap(List::stream).filter(o -> o.getName().equals(name)).findAny();
 
-        if(lesson != null){
-            return new ResponseEntity<>(lesson,HttpStatus.OK);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        return optionalLesson.map(lesson -> new ResponseEntity<>(lesson, HttpStatus.OK)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
+
+    @GetMapping("courses/{id}/lessons/{name}")
+    public ResponseEntity<Lesson> getLesson(@RequestHeader("Authorization") String token,@PathVariable int id,@PathVariable String name){
+        String email = jwtTokenUtil.getUsernameFromToken(token);
+        Optional<Lesson> optionalLesson = userRepository.findByEmail(email).getCourseProgresses().stream().map(CourseProgress::getCourse)
+                .filter(s ->s.getCourse_id() == id).map(Course::getLessons).flatMap(List::stream).filter(o -> o.getName().equals(name)).findAny();
+
+        return optionalLesson.map(lesson -> new ResponseEntity<>(lesson, HttpStatus.OK)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+
 }
