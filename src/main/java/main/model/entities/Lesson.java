@@ -17,17 +17,6 @@ public class Lesson {
     private String description;
     private String videoUrl;
 
-    @OneToMany(mappedBy = "lesson")
-    private List<TestPoint> tests;
-
-    public List<TestPoint> getTests() {
-        return tests;
-    }
-
-    public void setTests(List<TestPoint> tests) {
-        this.tests = tests;
-    }
-
     public String getName() {
         return name;
     }

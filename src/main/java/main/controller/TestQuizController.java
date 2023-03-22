@@ -31,7 +31,7 @@ public class TestQuizController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> addTestPoint(@RequestBody TestPoint point,@RequestParam("name") String lessonName){
+    public ResponseEntity<?> addTestPoint(@RequestBody TestPoint point, @RequestParam("name") String lessonName){
         return new ResponseEntity<>(testPointRepository.save(point),HttpStatus.OK);
     }
 }

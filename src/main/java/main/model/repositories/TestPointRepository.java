@@ -8,3 +8,6 @@ import java.util.List;
 public interface TestPointRepository extends CrudRepository<TestPoint,Integer> {
     List<TestPoint> findAll();
 }
+
+
+

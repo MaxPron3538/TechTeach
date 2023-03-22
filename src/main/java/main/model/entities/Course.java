@@ -23,6 +23,9 @@ public class Course {
     @OneToMany(mappedBy = "course")
     List<Lesson> lessons;
 
+    @OneToMany(mappedBy = "course")
+    List<TestPoint> tests;
+
     private int lessonProgress;
 
     public int getId() {
@@ -67,5 +70,9 @@ public class Course {
 
     public List<Lesson> getLessons(){
         return lessons;
+    }
+
+    public List<TestPoint> getTests() {
+        return tests;
     }
 }

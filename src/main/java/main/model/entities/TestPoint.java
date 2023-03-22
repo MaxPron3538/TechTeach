@@ -11,12 +11,14 @@ public class TestPoint {
     private int id;
 
     private String question;
-    private List<String> answersOptions;
     private String answer;
 
     @ManyToOne
-    @JoinColumn(name = "lesson_id",nullable = false)
-    private Lesson lesson;
+    @JoinColumn(name = "course_id",nullable = false)
+    private Course course;
+
+    @OneToMany(mappedBy = "testPoint")
+    List<AnswerOption> answerOptions;
 
     public int getId() {
         return id;
@@ -30,12 +32,8 @@ public class TestPoint {
         this.question = question;
     }
 
-    public List<String> getAnswersOptions() {
-        return answersOptions;
-    }
-
-    public void setAnswersOptions(List<String> answersOptions) {
-        this.answersOptions = answersOptions;
+    public List<AnswerOption> getAnswersOptions() {
+        return answerOptions;
     }
 
     public String getAnswer() {
@@ -46,7 +44,8 @@ public class TestPoint {
         this.answer = answer;
     }
 
-    public void setLesson(Lesson lesson) {
-        this.lesson = lesson;
+    public void setCourse(Course course) {
+        this.course = course;
     }
 }
+
