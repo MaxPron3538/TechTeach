@@ -11,10 +11,7 @@ import main.model.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,8 +74,8 @@ public class UserRestController {
         return new ResponseEntity<>(lessons,HttpStatus.OK);
     }
 
-    @GetMapping("courses/{id}")
-    public ResponseEntity<Course> getCourse(@RequestHeader("Authorization") String token,@RequestParam("id") int courseId){
+    @GetMapping("courses/{courseId}")
+    public ResponseEntity<Course> getCourse(@RequestHeader("Authorization") String token,@PathVariable int courseId){
         String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
         Course course = repositoryUser.findByEmail(email).getCourses()
                 .stream().filter(o -> o.getCourse_id() == courseId).findAny().orElse(null);
@@ -90,7 +87,7 @@ public class UserRestController {
     }
 
     @GetMapping("courses/lessons/{name}")
-    public ResponseEntity<Lesson> getLesson(@RequestHeader("Authorization") String token,@RequestParam("name") String name){
+    public ResponseEntity<Lesson> getLesson(@RequestHeader("Authorization") String token,@PathVariable String name){
         String email = jwtTokenUtil.getUsernameFromToken(token.substring(token.indexOf(" ")));
         Lesson lesson = repositoryUser.findByEmail(email).getCourses()
                 .stream().map(Course::getLessons).flatMap(List::stream).filter(o -> o.getName().equals(name)).findAny().orElse(null);
