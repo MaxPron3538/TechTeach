@@ -1,18 +1,17 @@
 package main.controller;
 
 
-import main.model.JwtConfigs.JwtTokenUtil;
-import main.model.entities.*;
-import main.model.repositories.CourseProgressRepository;
-import main.model.repositories.CourseRepository;
-import main.model.repositories.RegistrationRepository;
-import main.model.repositories.UserRepository;
+import main.logic.JwtConfigs.JwtTokenUtil;
+import main.logic.entities.*;
+import main.logic.repositories.CourseProgressRepository;
+import main.logic.repositories.CourseRepository;
+import main.logic.repositories.RegistrationRepository;
+import main.logic.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

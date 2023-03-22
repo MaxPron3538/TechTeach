@@ -1,15 +1,13 @@
 package main.controller;
 
-import main.model.entities.Lesson;
-import main.model.entities.TestPoint;
-import main.model.repositories.LessonRepository;
-import main.model.repositories.TestPointRepository;
+import main.logic.entities.Lesson;
+import main.logic.entities.TestPoint;
+import main.logic.repositories.LessonRepository;
+import main.logic.repositories.TestPointRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RequestMapping("tests")
 public class TestQuizController {

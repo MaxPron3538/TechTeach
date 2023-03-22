@@ -1,22 +1,17 @@
 package main.controller;
 
-import main.model.JwtConfigs.JwtRequest;
-import main.model.JwtConfigs.JwtResponse;
-import main.model.JwtConfigs.JwtTokenUtil;
-import main.model.entities.User;
-import main.model.models.UserModel;
-import main.model.repositories.UserRepository;
-import main.model.services.JwtUserDetailsService;
-import main.model.validators.ValidatorUserData;
+import main.logic.JwtConfigs.JwtRequest;
+import main.logic.JwtConfigs.JwtResponse;
+import main.logic.JwtConfigs.JwtTokenUtil;
+import main.logic.entities.User;
+import main.logic.models.UserModel;
+import main.logic.repositories.UserRepository;
+import main.logic.services.JwtUserDetailsService;
+import main.logic.validators.ValidatorUserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

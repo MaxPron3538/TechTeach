@@ -1,13 +1,11 @@
 package main.controller;
 
-import main.model.JwtConfigs.JwtTokenUtil;
-import main.model.entities.Course;
-import main.model.entities.CourseProgress;
-import main.model.entities.Lesson;
-import main.model.entities.User;
-import main.model.repositories.CourseRepository;
-import main.model.repositories.LessonRepository;
-import main.model.repositories.UserRepository;
+import main.logic.JwtConfigs.JwtTokenUtil;
+import main.logic.entities.Course;
+import main.logic.entities.CourseProgress;
+import main.logic.entities.Lesson;
+import main.logic.entities.User;
+import main.logic.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
