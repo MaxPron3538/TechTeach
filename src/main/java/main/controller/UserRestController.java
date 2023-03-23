@@ -5,6 +5,7 @@ import main.logic.entities.Course;
 import main.logic.entities.CourseProgress;
 import main.logic.entities.Lesson;
 import main.logic.entities.User;
+import main.logic.repositories.CourseRepository;
 import main.logic.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,9 @@ public class UserRestController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    CourseRepository courseRepository;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -58,13 +62,10 @@ public class UserRestController {
     @GetMapping("courses/{id}")
     public ResponseEntity<Course> getCourse(@RequestHeader("Authorization") String token,@PathVariable int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
-        Course course = userRepository.findByEmail(email).getCourses()
-                .stream().filter(o -> o.getCourse_id() == id).findAny().orElse(null);
+        Optional<Course> optionalCourse = userRepository.findByEmail(email).getCourses()
+                .stream().filter(o -> o.getCourse_id() == id).findAny();
 
-        if(course != null){
-            return new ResponseEntity<>(course,HttpStatus.OK);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        return optionalCourse.map(course -> new ResponseEntity<>(course, HttpStatus.OK)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
 
@@ -94,6 +95,16 @@ public class UserRestController {
                 .filter(s ->s.getCourse_id() == id).map(Course::getLessons).flatMap(List::stream).filter(o -> o.getName().equals(name)).findAny();
 
         return optionalLesson.map(lesson -> new ResponseEntity<>(lesson, HttpStatus.OK)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+    @GetMapping("courses/{id}/tests")
+    public ResponseEntity<?> getListOfTest(@PathVariable int id){
+        Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(s -> s.getCourse_id() == id).findAny();
+
+        if(optionalCourse.isPresent()) {
+            return new ResponseEntity<>(optionalCourse.get().getTests(), HttpStatus.OK);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
 }

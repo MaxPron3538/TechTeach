@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface LessonRepository extends CrudRepository<Lesson,Integer> {
     List<Lesson> findAll();
-    Lesson findByName(String name);
 }

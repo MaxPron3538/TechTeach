@@ -26,7 +26,6 @@ public class CourseProgress {
         return id;
     }
 
-
     public void setStudent(User student) {
         this.student = student;
     }

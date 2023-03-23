@@ -41,11 +41,11 @@ public class CourseRestController {
 
     @GetMapping("/courses/{content}")
     public ResponseEntity<?> getCourseByName(@PathVariable String content){
-        Course savedCourse = courseRepository.findAll().stream()
-                    .filter(s -> s.getName().contains(content) || s.getDescription().contains(content)).findFirst().orElse(null);
+        Optional<Course> optionalCourse = courseRepository.findAll().stream()
+                    .filter(s -> s.getName().contains(content) || s.getDescription().contains(content)).findFirst();
 
-        if(savedCourse != null) {
-            return new ResponseEntity<>(savedCourse, HttpStatus.OK);
+        if(optionalCourse.isPresent()) {
+            return new ResponseEntity<>(optionalCourse.get(), HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
@@ -56,19 +56,18 @@ public class CourseRestController {
         User user = userRepository.findByEmail(email);
 
         if(user.getRole() == Role.teacher) {
-            Course savedCourse = courseRepository.findAll().stream().filter(s -> s.getCourse_id() == course.getCourse_id()).findFirst().orElse(null);
+            Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(s -> s.getCourse_id() == course.getCourse_id()).findFirst();
 
-            if (savedCourse == null) {
+            if (!optionalCourse.isPresent()) {
                 courseRepository.save(course);
-                savedCourse = courseRepository.findAll().stream().filter(s -> s.getCourse_id() == course.getCourse_id()).findFirst().get();
-                return new ResponseEntity<>(savedCourse, HttpStatus.OK);
+                return new ResponseEntity<>(HttpStatus.OK);
             }
             return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
     }
 
-    @PutMapping("/courses{id}")
+    @PutMapping("/courses/{id}")
     public ResponseEntity<?> updateCourse(@RequestBody Course course, @RequestHeader("Authorization") String token,@PathVariable int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
@@ -97,7 +96,7 @@ public class CourseRestController {
             Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(s -> s.getCourse_id() == id).findAny();
 
             if(optionalCourse.isPresent()){
-                courseRepository.deleteById(optionalCourse.get().getId());
+                courseRepository.delete(optionalCourse.get());
                 return ResponseEntity.status(HttpStatus.OK).body(null);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -106,7 +105,7 @@ public class CourseRestController {
 
     }
 
-    @GetMapping("/courses/submit/student/{courseId}")
+    @GetMapping("/users/submits/{courseId}")
     public ResponseEntity<?> submitStudentOnCourse(@RequestHeader("Authorization") String token,@PathVariable int courseId) {
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
@@ -138,7 +137,7 @@ public class CourseRestController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
     }
 
-    @GetMapping("/courses/submit/teacher/{courseId}")
+    @GetMapping("/teachers/submits/{courseId}")
     public ResponseEntity<?> submitTeacherOnCourse(@RequestHeader("Authorization") String token,@PathVariable int courseId){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
