@@ -29,12 +29,12 @@ public class LessonRestController {
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
-    @GetMapping("/")
+    @GetMapping("")
     public List<Lesson> getAllLessons(){
         return lessonRepository.findAll();
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<?> addLesson(@RequestBody Lesson lesson,@RequestHeader("Authorization") String token,@RequestParam("id_course") int courseId){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
@@ -101,7 +101,7 @@ public class LessonRestController {
     @GetMapping("/{content}")
     public ResponseEntity<?> getLessonByContent(@PathVariable String content){
         Optional<Lesson> optionalLesson = lessonRepository.findAll()
-                .stream().filter(s -> s.getName().contains(content) && s.getDescription().contains(content)).findAny();
+                .stream().filter(s -> s.getName().contains(content) || s.getDescription().contains(content)).findAny();
 
         if(optionalLesson.isPresent()){
             return new ResponseEntity<>(optionalLesson.get(),HttpStatus.OK);

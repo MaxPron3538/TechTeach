@@ -62,9 +62,9 @@ public class CourseRestController {
                 courseRepository.save(course);
                 return new ResponseEntity<>(HttpStatus.OK);
             }
-            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
+            return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     @PutMapping("/courses/{id}")
@@ -81,10 +81,12 @@ public class CourseRestController {
                 savedCourse.setDescription(course.getDescription());
                 savedCourse.setLessonProgress(course.getLessonProgress());
                 courseRepository.save(savedCourse);
+
+                return new ResponseEntity<>(HttpStatus.OK);
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     @DeleteMapping("/courses/{id}")
@@ -97,12 +99,11 @@ public class CourseRestController {
 
             if(optionalCourse.isPresent()){
                 courseRepository.delete(optionalCourse.get());
-                return ResponseEntity.status(HttpStatus.OK).body(null);
+                return new ResponseEntity<>(HttpStatus.OK);
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/users/submits/{courseId}")
@@ -130,11 +131,11 @@ public class CourseRestController {
 
                     return new ResponseEntity<>(user, HttpStatus.OK);
                 }
-                return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
+                return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/teachers/submits/{courseId}")
@@ -158,10 +159,10 @@ public class CourseRestController {
 
                     return new ResponseEntity<>(user, HttpStatus.OK);
                 }
-                return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
+                return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 }

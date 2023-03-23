@@ -43,7 +43,7 @@ public class UserRestController {
         return new ResponseEntity<>(courseProgresses,HttpStatus.OK);
     }
 
-    @GetMapping("/courseProgresses{id}")
+    @GetMapping("/courseProgresses/{id}")
     public ResponseEntity<CourseProgress> getCourseProgress(@RequestHeader("Authorization") String token,@PathVariable int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         Optional<CourseProgress> optionalCourseProgress = userRepository.findByEmail(email).getCourseProgresses().stream().filter(s -> s.getId() == id).findAny();
@@ -62,8 +62,8 @@ public class UserRestController {
     @GetMapping("courses/{id}")
     public ResponseEntity<Course> getCourse(@RequestHeader("Authorization") String token,@PathVariable int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
-        Optional<Course> optionalCourse = userRepository.findByEmail(email).getCourses()
-                .stream().filter(o -> o.getCourse_id() == id).findAny();
+        Optional<Course> optionalCourse = userRepository.findByEmail(email).getCourseProgresses()
+                .stream().map(CourseProgress::getCourse).filter(o -> o.getCourse_id() == id).findAny();
 
         return optionalCourse.map(course -> new ResponseEntity<>(course, HttpStatus.OK)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
@@ -72,11 +72,17 @@ public class UserRestController {
     @GetMapping("courses/{id}/lessons")
     public ResponseEntity<List<Lesson>> getLessons(@RequestHeader("Authorization") String token,@PathVariable int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
-        List<Lesson> lessons = userRepository.findByEmail(email).getCourseProgresses()
-                .stream().map(CourseProgress::getCourse).filter(o -> o.getCourse_id() == id)
-                .map(Course::getLessons).flatMap(List::stream).collect(Collectors.toList());
+        Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(o -> o.getCourse_id() == id).findAny();
 
-        return new ResponseEntity<>(lessons,HttpStatus.OK);
+        if(optionalCourse.isPresent()) {
+            List<Lesson> lessons = userRepository.findByEmail(email).getCourseProgresses()
+                    .stream().map(CourseProgress::getCourse).filter(o -> o.getCourse_id() == id)
+                    .map(Course::getLessons).flatMap(List::stream).collect(Collectors.toList());
+
+            return new ResponseEntity<>(lessons, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
     }
 
     @GetMapping("courses/lessons/{name}")
@@ -91,10 +97,15 @@ public class UserRestController {
     @GetMapping("courses/{id}/lessons/{name}")
     public ResponseEntity<Lesson> getLesson(@RequestHeader("Authorization") String token,@PathVariable int id,@PathVariable String name){
         String email = jwtTokenUtil.getUsernameFromToken(token);
-        Optional<Lesson> optionalLesson = userRepository.findByEmail(email).getCourseProgresses().stream().map(CourseProgress::getCourse)
-                .filter(s ->s.getCourse_id() == id).map(Course::getLessons).flatMap(List::stream).filter(o -> o.getName().equals(name)).findAny();
+        Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(o -> o.getCourse_id() == id).findAny();
 
-        return optionalLesson.map(lesson -> new ResponseEntity<>(lesson, HttpStatus.OK)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+        if(optionalCourse.isPresent()) {
+            Optional<Lesson> optionalLesson = userRepository.findByEmail(email).getCourseProgresses().stream().map(CourseProgress::getCourse)
+                    .filter(s -> s.getCourse_id() == id).map(Course::getLessons).flatMap(List::stream).filter(o -> o.getName().equals(name)).findAny();
+
+            return optionalLesson.map(lesson -> new ResponseEntity<>(lesson, HttpStatus.OK)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("courses/{id}/tests")
@@ -104,7 +115,7 @@ public class UserRestController {
         if(optionalCourse.isPresent()) {
             return new ResponseEntity<>(optionalCourse.get().getTests(), HttpStatus.OK);
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 }

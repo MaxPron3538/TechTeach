@@ -64,7 +64,7 @@ public class ProfTestRestController {
                 List<AnswerOption> answerOptions = testPoint.getAnswersOptions();
                 answerOptions.forEach(o -> o.setTestPoint(testPoint));
                 testPointRepository.save(testPoint);
-                answerOptions.forEach(o -> answerOptionRepository.save(o));
+                answerOptionRepository.saveAll(answerOptions);
 
                 return new ResponseEntity<>(HttpStatus.OK);
             }
@@ -74,19 +74,17 @@ public class ProfTestRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTestPoint(@RequestBody TestPoint testPoint,@RequestHeader("Authorization") String token,@RequestParam("id_course") int courseId){
+    public ResponseEntity<?> deleteTestPoint(@RequestHeader("Authorization") String token,@PathVariable int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
 
         if(user.getRole() == Role.teacher) {
-            Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(o -> o.getCourse_id() == courseId).findAny();
+            Optional<TestPoint> optionalTestPoint = testPointRepository.findById(id);
 
-            if (optionalCourse.isPresent()) {
-                List<AnswerOption> answerOptions = testPoint.getAnswersOptions();
-                answerOptions.forEach(o -> o.setTestPoint(testPoint));
-                testPoint.setCourse(optionalCourse.get());
-                testPointRepository.save(testPoint);
-                answerOptions.forEach(o -> answerOptionRepository.save(o));
+            if (optionalTestPoint.isPresent()) {
+                List<AnswerOption> answerOptions = optionalTestPoint.get().getAnswersOptions();
+                answerOptionRepository.deleteAll(answerOptions);
+                testPointRepository.delete(optionalTestPoint.get());
 
                 return new ResponseEntity<>(HttpStatus.OK);
             }
