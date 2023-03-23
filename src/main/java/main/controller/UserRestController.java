@@ -96,5 +96,4 @@ public class UserRestController {
         return optionalLesson.map(lesson -> new ResponseEntity<>(lesson, HttpStatus.OK)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
-
 }

@@ -30,7 +30,7 @@ public class LessonRestController {
     JwtTokenUtil jwtTokenUtil;
 
     @GetMapping("/")
-    public List<Lesson> getAllCourses(){
+    public List<Lesson> getAllLessons(){
         return lessonRepository.findAll();
     }
 
