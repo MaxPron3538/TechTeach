@@ -31,19 +31,19 @@ public class ProfTestRestController {
     JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/")
-    public ResponseEntity<?> addTestPoint(@RequestBody TestPoint testPoint,@RequestHeader("Authorization") String token,@RequestParam("id_course") int courseId){
+    public ResponseEntity<?> addTestPoint(@RequestBody TestPoint testPoint,@RequestHeader("Authorization") String token,@RequestParam("id_course") int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
 
         if(user.getRole() == Role.teacher) {
-            Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(o -> o.getCourse_id() == courseId).findAny();
+            Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(o -> o.getId() == id).findAny();
 
             if (optionalCourse.isPresent()) {
                 List<AnswerOption> answerOptions = testPoint.getAnswersOptions();
                 answerOptions.forEach(o -> o.setTestPoint(testPoint));
                 testPoint.setCourse(optionalCourse.get());
                 testPointRepository.save(testPoint);
-                answerOptions.forEach(o -> answerOptionRepository.save(o));
+                answerOptionRepository.saveAll(answerOptions);
 
                 return new ResponseEntity<>(HttpStatus.OK);
             }

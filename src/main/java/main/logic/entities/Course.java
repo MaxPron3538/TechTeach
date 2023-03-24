@@ -11,9 +11,7 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(unique=true)
     private  int course_id;
-
     private String name;
     private String description;
 
