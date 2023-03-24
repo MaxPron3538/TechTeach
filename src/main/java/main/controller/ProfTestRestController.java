@@ -30,7 +30,7 @@ public class ProfTestRestController {
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<?> addTestPoint(@RequestBody TestPoint testPoint,@RequestHeader("Authorization") String token,@RequestParam("id_course") int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
@@ -52,7 +52,7 @@ public class ProfTestRestController {
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<?> updateTestPoint(@RequestBody TestPoint testPoint,@RequestHeader("Authorization") String token,@PathVariable int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
@@ -73,7 +73,7 @@ public class ProfTestRestController {
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<?> deleteTestPoint(@RequestHeader("Authorization") String token,@PathVariable int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
