@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("tests")
+@RequestMapping("/tests")
 public class ProfTestRestController {
 
     @Autowired
