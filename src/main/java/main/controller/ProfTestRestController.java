@@ -8,8 +8,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/tests")
@@ -30,20 +38,22 @@ public class ProfTestRestController {
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
-    @PostMapping("")
-    public ResponseEntity<?> addTestPoint(@RequestBody TestPoint testPoint,@RequestHeader("Authorization") String token,@RequestParam("id_course") int id){
+    @GetMapping("")
+    public List<TestPoint> getAllTestPoints(){
+        return testPointRepository.findAll();
+    }
+
+    @PostMapping("/{courseId}")
+    public ResponseEntity<?> addTestPoint(@RequestBody TestPoint testPoint, @RequestHeader("Authorization") String token,@PathVariable int courseId) {
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
 
         if(user.getRole() == Role.teacher) {
-            Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(o -> o.getId() == id).findAny();
+            Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(o -> o.getId() == courseId).findAny();
 
             if (optionalCourse.isPresent()) {
-                List<AnswerOption> answerOptions = testPoint.getAnswersOptions();
-                answerOptions.forEach(o -> o.setTestPoint(testPoint));
                 testPoint.setCourse(optionalCourse.get());
                 testPointRepository.save(testPoint);
-                answerOptionRepository.saveAll(answerOptions);
 
                 return new ResponseEntity<>(HttpStatus.OK);
             }
@@ -52,37 +62,35 @@ public class ProfTestRestController {
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<?> updateTestPoint(@RequestBody TestPoint testPoint,@RequestHeader("Authorization") String token,@PathVariable int id){
+    @PutMapping("/optiones/{testId}")
+    public ResponseEntity<?> updateTestPoint(@RequestBody List<AnswerOption> answerOptions, @RequestHeader("Authorization") String token,@PathVariable int testId){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
 
         if(user.getRole() == Role.teacher) {
-            Optional<TestPoint> optionalTestPoint = testPointRepository.findById(id);
-
-            if(optionalTestPoint.isPresent()){
-                List<AnswerOption> answerOptions = testPoint.getAnswersOptions();
-                answerOptions.forEach(o -> o.setTestPoint(testPoint));
-                testPointRepository.save(testPoint);
-                answerOptionRepository.saveAll(answerOptions);
-
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-    }
-
-    @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteTestPoint(@RequestHeader("Authorization") String token,@PathVariable int id){
-        String email = jwtTokenUtil.getUsernameFromToken(token);
-        User user = userRepository.findByEmail(email);
-
-        if(user.getRole() == Role.teacher) {
-            Optional<TestPoint> optionalTestPoint = testPointRepository.findById(id);
+            Optional<TestPoint> optionalTestPoint = testPointRepository.findAll().stream().filter(o -> o.getId() == testId).findAny();
 
             if (optionalTestPoint.isPresent()) {
-                List<AnswerOption> answerOptions = optionalTestPoint.get().getAnswersOptions();
+                answerOptions.forEach(o -> o.setTestPoint(optionalTestPoint.get()));
+                answerOptionRepository.saveAll(answerOptions);
+
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
+
+    @DeleteMapping("/{courseId}")
+    public ResponseEntity<?> deleteTestPoint(@RequestHeader("Authorization") String token,@PathVariable int courseId){
+        String email = jwtTokenUtil.getUsernameFromToken(token);
+        User user = userRepository.findByEmail(email);
+
+        if(user.getRole() == Role.teacher) {
+            Optional<TestPoint> optionalTestPoint = testPointRepository.findById(courseId);
+
+            if (optionalTestPoint.isPresent()) {
+                List<AnswerOption> answerOptions = optionalTestPoint.get().getAnswerOptions();
                 answerOptionRepository.deleteAll(answerOptions);
                 testPointRepository.delete(optionalTestPoint.get());
 
@@ -93,3 +101,5 @@ public class ProfTestRestController {
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 }
+
+

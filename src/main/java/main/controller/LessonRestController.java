@@ -34,8 +34,8 @@ public class LessonRestController {
         return lessonRepository.findAll();
     }
 
-    @PostMapping("")
-    public ResponseEntity<?> addLesson(@RequestBody Lesson lesson,@RequestHeader("Authorization") String token,@RequestParam("id_course") int id){
+    @PostMapping("/{courseId}")
+    public ResponseEntity<?> addLesson(@RequestBody Lesson lesson,@RequestHeader("Authorization") String token,@PathVariable int courseId){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
 
@@ -44,7 +44,7 @@ public class LessonRestController {
 
             if (!optionalLesson.isPresent()) {
                 int lessonKey = lessonRepository.findAll().size() + 1;
-                Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(s -> s.getId() == id).findAny();
+                Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(s -> s.getId() == courseId).findAny();
 
                 if (optionalCourse.isPresent()) {
                     lesson.setCourse(optionalCourse.get());

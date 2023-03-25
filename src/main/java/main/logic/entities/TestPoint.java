@@ -1,5 +1,8 @@
 package main.logic.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -20,19 +23,15 @@ public class TestPoint {
     @OneToMany(mappedBy = "testPoint")
     List<AnswerOption> answerOptions;
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
 
-    public String getQuestion() {
-        return question;
-    }
+    public String getQuestion() { return question; }
 
     public void setQuestion(String question) {
         this.question = question;
     }
 
-    public List<AnswerOption> getAnswersOptions() {
+    public List<AnswerOption> getAnswerOptions() {
         return answerOptions;
     }
 
