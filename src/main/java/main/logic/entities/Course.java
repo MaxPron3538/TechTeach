@@ -14,6 +14,7 @@ public class Course {
     private  int course_id;
     private String name;
     private String description;
+    private String coverUrl;
 
     @ManyToMany(mappedBy = "courses")
     List<User> teachers;
@@ -56,6 +57,10 @@ public class Course {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public String getCoverUrl() { return coverUrl; }
+
+    public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
 
     public int getLessonProgress() {
         return lessonProgress;
