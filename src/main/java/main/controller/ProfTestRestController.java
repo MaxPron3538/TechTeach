@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/tests")
+@CrossOrigin
 public class ProfTestRestController {
 
     @Autowired

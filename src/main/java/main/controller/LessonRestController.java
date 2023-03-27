@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/lessons")
+@CrossOrigin
 public class LessonRestController {
 
     @Autowired
