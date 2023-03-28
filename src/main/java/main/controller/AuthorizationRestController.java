@@ -14,8 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
 @CrossOrigin
+@RestController
 public class AuthorizationRestController {
 
     @Autowired
@@ -51,7 +51,7 @@ public class AuthorizationRestController {
             }
             return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(user,HttpStatus.ALREADY_REPORTED);
+        return new ResponseEntity<>(user, HttpStatus.ALREADY_REPORTED);
     }
 
 }

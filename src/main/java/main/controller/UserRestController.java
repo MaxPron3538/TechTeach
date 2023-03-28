@@ -17,8 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("users")
-@CrossOrigin
+@RequestMapping("/users")
 public class UserRestController {
 
     @Autowired
@@ -30,7 +29,7 @@ public class UserRestController {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<User> getUser(@RequestHeader("Authorization") String token){
         String email = jwtTokenUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email);
