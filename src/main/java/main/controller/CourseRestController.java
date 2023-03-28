@@ -39,10 +39,21 @@ public class CourseRestController {
         return courseRepository.findAll();
     }
 
-    @GetMapping("/courses/{content}")
+    @GetMapping("/courses/search/{content}")
     public ResponseEntity<?> getCourseByName(@PathVariable String content){
         Optional<Course> optionalCourse = courseRepository.findAll().stream()
                     .filter(s -> s.getName().contains(content) || s.getDescription().contains(content)).findFirst();
+
+        if(optionalCourse.isPresent()) {
+            return new ResponseEntity<>(optionalCourse.get(), HttpStatus.OK);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+
+    @GetMapping("/courses/{id}")
+    public ResponseEntity<?> getCourseById(@PathVariable int id){
+        Optional<Course> optionalCourse = courseRepository.findAll().stream()
+                .filter(s -> s.getId() == id).findFirst();
 
         if(optionalCourse.isPresent()) {
             return new ResponseEntity<>(optionalCourse.get(), HttpStatus.OK);

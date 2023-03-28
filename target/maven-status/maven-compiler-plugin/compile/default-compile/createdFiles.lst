@@ -1,5 +1,4 @@
 main\logic\repositories\CourseRepository.class
-main\Main$1.class
 main\logic\entities\User.class
 main\logic\entities\LessonKey.class
 main\logic\entities\Course.class
