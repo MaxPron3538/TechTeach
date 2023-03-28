@@ -13,9 +13,10 @@ public class Course {
 
     private  int course_id;
     private String name;
-    @Lob
+
     @Column(columnDefinition="TEXT")
     private String description;
+
     private String coverUrl;
 
     @ManyToMany(mappedBy = "courses")
