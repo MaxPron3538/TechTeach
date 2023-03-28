@@ -91,7 +91,6 @@ public class CourseRestController {
                 Course savedCourse = optionalCourse.get();
                 savedCourse.setName(course.getName());
                 savedCourse.setDescription(course.getDescription());
-                savedCourse.setLessonProgress(course.getLessonProgress());
                 courseRepository.save(savedCourse);
 
                 return new ResponseEntity<>(HttpStatus.OK);
@@ -135,6 +134,7 @@ public class CourseRestController {
                     progress.setStudent(user);
                     progress.setSubscriptionType(SubscriptionType.user);
                     progress.setSubscribedAt(LocalDate.now());
+                    progress.setLessonProgress(0);
                     int month = LocalDate.now().getMonth().getValue() + (int) (Math.random() * 12 - LocalDate.now().getMonth().getValue());
                     int day = 1 + (int) (Math.random() * 28);
                     progress.setValid_until(LocalDate.of(LocalDate.now().getYear(),

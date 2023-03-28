@@ -31,8 +31,6 @@ public class Course {
     @OneToMany(mappedBy = "course")
     List<TestPoint> tests;
 
-    private int lessonProgress;
-
     public int getId() {
         return id;
     }
@@ -64,14 +62,6 @@ public class Course {
     public String getCoverUrl() { return coverUrl; }
 
     public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
-
-    public int getLessonProgress() {
-        return lessonProgress;
-    }
-
-    public void setLessonProgress(int lessonProgress) {
-        this.lessonProgress = lessonProgress;
-    }
 
     public List<Lesson> getLessons(){
         return lessons;

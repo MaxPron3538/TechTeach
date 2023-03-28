@@ -21,14 +21,13 @@ public class CourseProgress {
     private LocalDate subscribedAt;
     private LocalDate valid_until;
     private SubscriptionType subscriptionType;
+    private int lessonProgress;
 
     public Integer getId() {
         return id;
     }
 
-    public void setStudent(User student) {
-        this.student = student;
-    }
+    public void setStudent(User student) { this.student = student;}
 
     public Course getCourse() {
         return course;
@@ -61,4 +60,8 @@ public class CourseProgress {
     public void setSubscriptionType(SubscriptionType subscriptionType) {
         this.subscriptionType = subscriptionType;
     }
+
+    public int getLessonProgress() { return lessonProgress; }
+
+    public void setLessonProgress(int lessonProgress) { this.lessonProgress = lessonProgress;}
 }

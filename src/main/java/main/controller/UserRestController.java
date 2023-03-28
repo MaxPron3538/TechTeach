@@ -5,6 +5,7 @@ import main.logic.entities.Course;
 import main.logic.entities.CourseProgress;
 import main.logic.entities.Lesson;
 import main.logic.entities.User;
+import main.logic.repositories.CourseProgressRepository;
 import main.logic.repositories.CourseRepository;
 import main.logic.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ public class UserRestController {
 
     @Autowired
     CourseRepository courseRepository;
+
+    @Autowired
+    CourseProgressRepository courseProgressRepository;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -50,6 +54,21 @@ public class UserRestController {
 
         return optionalCourseProgress.map(courseProgress -> new ResponseEntity<>(courseProgress, HttpStatus.OK))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+    @PutMapping("/courseProgresses/{id}/set")
+    public ResponseEntity<?> setProgress(@RequestBody int lessonProgress, @RequestHeader("Authorization") String token,@PathVariable int id){
+        String email = jwtTokenUtil.getUsernameFromToken(token);
+        Optional<CourseProgress> optionalCourseProgress = userRepository.findByEmail(email).getCourseProgresses().stream().filter(s -> s.getId() == id).findAny();
+
+        if(optionalCourseProgress.isPresent()){
+            CourseProgress progress = optionalCourseProgress.get();
+            progress.setLessonProgress(lessonProgress);
+            courseProgressRepository.save(progress);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("courses")
