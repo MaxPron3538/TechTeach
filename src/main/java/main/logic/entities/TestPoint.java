@@ -13,7 +13,11 @@ public class TestPoint {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Lob
+    @Column(columnDefinition="TEXT")
     private String question;
+    @Lob
+    @Column(columnDefinition="TEXT")
     private String answer;
 
     @ManyToOne

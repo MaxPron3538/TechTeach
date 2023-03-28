@@ -11,6 +11,8 @@ public class AnswerOption {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int id;
 
+    @Lob
+    @Column(columnDefinition="TEXT")
     private String possibleAnswer;
 
     @ManyToOne

@@ -54,5 +54,10 @@ public class AuthorizationRestController {
         return new ResponseEntity<>(user, HttpStatus.ALREADY_REPORTED);
     }
 
+    @GetMapping("/hello")
+    public ResponseEntity<?> getHello() {
+        return new ResponseEntity<>("Hello", HttpStatus.ALREADY_REPORTED);
+    }
+
 }
 

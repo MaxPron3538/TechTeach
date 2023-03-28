@@ -13,6 +13,8 @@ public class Lesson {
     private Course course;
 
     private String name;
+    @Lob
+    @Column(columnDefinition="TEXT")
     private String description;
     private String videoUrl;
 
