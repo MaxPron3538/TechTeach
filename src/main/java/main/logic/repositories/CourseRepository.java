@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface CourseRepository extends CrudRepository<Course,Integer> {
     List<Course> findAll();
+    List<Course> findByOrderByIdAsc();
 }
