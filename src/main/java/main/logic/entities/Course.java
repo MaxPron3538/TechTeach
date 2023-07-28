@@ -7,17 +7,31 @@ import java.util.List;
 
 @Entity
 public class Course {
+
+    public Course(){}
+
+    public Course(int id,int courseId,String name,String description,String coverUrl){
+        this.id = id;
+        this.courseId = courseId;
+        this.name = name;
+        this.description = description;
+        this.coverUrl = coverUrl;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private  int course_id;
+    @Column(name = "course_id")
+    private  int courseId;
     private String name;
 
     @Column(columnDefinition="TEXT")
     private String description;
 
     private String coverUrl;
+
+    private boolean isAvailable = true;
 
     @ManyToMany(mappedBy = "courses")
     List<User> teachers;
@@ -36,11 +50,11 @@ public class Course {
     }
 
     public int getCourse_id() {
-        return course_id;
+        return courseId;
     }
 
-    public void setCourse_id(int course_id) {
-        this.course_id = course_id;
+    public void setCourse_id(int courseId) {
+        this.courseId = courseId;
     }
 
     public String getName() {
@@ -70,4 +84,15 @@ public class Course {
     public List<TestPoint> getTests() {
         return tests;
     }
+
+
+    public void setAvailable(boolean isAvailable){
+        this.isAvailable = isAvailable;
+    }
+
+    public boolean getAvailable(){
+        return isAvailable;
+    }
+
+
 }

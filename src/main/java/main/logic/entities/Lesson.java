@@ -5,8 +5,17 @@ import javax.persistence.*;
 @Entity
 public class Lesson {
 
+    public Lesson(){}
+
+    public Lesson(LessonKey id,String name,String description,String videoUrl){
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.videoUrl = videoUrl;
+    }
+
     @EmbeddedId
-    private LessonKey lessonId;
+    private LessonKey id;
 
     @ManyToOne
     @MapsId("courseId")
@@ -39,12 +48,16 @@ public class Lesson {
         return videoUrl;
     }
 
+    public LessonKey getId() {
+        return id;
+    }
+
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
     }
 
-    public void setLessonId(LessonKey lessonId) {
-        this.lessonId = lessonId;
+    public void setLessonId(LessonKey id) {
+        this.id = id;
     }
 
     public void setCourse(Course course) {

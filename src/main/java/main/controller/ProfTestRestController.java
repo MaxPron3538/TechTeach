@@ -1,60 +1,44 @@
 package main.controller;
 
 import main.logic.JwtConfigs.JwtTokenUtil;
-import main.logic.entities.*;
-import main.logic.repositories.*;
+import main.logic.entities.AnswerOption;
+import main.logic.entities.Role;
+import main.logic.entities.TestPoint;
+import main.logic.entities.User;
+import main.logic.services.JwtUserDetailsService;
+import main.logic.services.ProfTestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/tests")
 public class ProfTestRestController {
 
     @Autowired
-    CourseRepository courseRepository;
-
-    @Autowired
-    TestPointRepository testPointRepository;
-
-    @Autowired
-    AnswerOptionRepository answerOptionRepository;
-
-    @Autowired
-    UserRepository userRepository;
+    JwtUserDetailsService userDetailsService;
 
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
+    @Autowired
+    ProfTestService testService;
+
     @GetMapping("")
     public List<TestPoint> getAllTestPoints(){
-        return testPointRepository.findAll();
+        return testService.getAllTests();
     }
 
     @PostMapping("/{courseId}")
-    public ResponseEntity<?> addTestPoint(@RequestBody TestPoint testPoint, @RequestHeader("Authorization") String token,@PathVariable int courseId) {
+    public ResponseEntity<?> addTestPoint(@RequestBody TestPoint testPoint, @RequestHeader("Authorization") String token, @PathVariable int courseId) {
         String email = jwtTokenUtil.getUsernameFromToken(token);
-        User user = userRepository.findByEmail(email);
+        User user = userDetailsService.getUser(email);
 
         if(user.getRole() == Role.teacher) {
-            Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(o -> o.getId() == courseId).findAny();
-
-            if (optionalCourse.isPresent()) {
-                testPoint.setCourse(optionalCourse.get());
-                testPointRepository.save(testPoint);
-
+            if(testService.addTestPoint(testPoint,courseId).isPresent()){
                 return new ResponseEntity<>(HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -62,38 +46,41 @@ public class ProfTestRestController {
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    @PutMapping("/optiones/{testId}")
-    public ResponseEntity<?> updateTestPoint(@RequestBody List<AnswerOption> answerOptions, @RequestHeader("Authorization") String token,@PathVariable int testId){
+    @PutMapping("/options/{testId}")
+    public ResponseEntity<?> updateTestPoint(@RequestBody List<AnswerOption> answerOptions, @RequestHeader("Authorization") String token, @PathVariable int testId){
         String email = jwtTokenUtil.getUsernameFromToken(token);
-        User user = userRepository.findByEmail(email);
+        User user = userDetailsService.getUser(email);
 
         if(user.getRole() == Role.teacher) {
-            Optional<TestPoint> optionalTestPoint = testPointRepository.findAll().stream().filter(o -> o.getId() == testId).findAny();
-
-            if (optionalTestPoint.isPresent()) {
-                answerOptions.forEach(o -> o.setTestPoint(optionalTestPoint.get()));
-                answerOptionRepository.saveAll(answerOptions);
-
+            if(testService.updateTestPoint(answerOptions,testId).isPresent()){
                 return new ResponseEntity<>(HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
+
+    @DeleteMapping("/{testId}")
+    public ResponseEntity<?> deleteTestPoint(@RequestHeader("Authorization") String token,@PathVariable int testId){
+        String email = jwtTokenUtil.getUsernameFromToken(token);
+        User user = userDetailsService.getUser(email);
+
+        if(user.getRole() == Role.teacher) {
+           if(testService.deleteTestPoint(testId).isPresent()){
+               return new ResponseEntity<>(HttpStatus.OK);
+           }
+           return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     @DeleteMapping("/{courseId}")
-    public ResponseEntity<?> deleteTestPoint(@RequestHeader("Authorization") String token,@PathVariable int courseId){
+    public ResponseEntity<?> deleteAllTestByCourseId(@RequestHeader("Authorization") String token,@PathVariable int courseId){
         String email = jwtTokenUtil.getUsernameFromToken(token);
-        User user = userRepository.findByEmail(email);
+        User user = userDetailsService.getUser(email);
 
         if(user.getRole() == Role.teacher) {
-            Optional<TestPoint> optionalTestPoint = testPointRepository.findById(courseId);
-
-            if (optionalTestPoint.isPresent()) {
-                List<AnswerOption> answerOptions = optionalTestPoint.get().getAnswerOptions();
-                answerOptionRepository.deleteAll(answerOptions);
-                testPointRepository.delete(optionalTestPoint.get());
-
+            if(testService.deleteAllTestByCourseId(courseId).isEmpty()){
                 return new ResponseEntity<>(HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

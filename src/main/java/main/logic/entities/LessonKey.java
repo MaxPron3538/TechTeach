@@ -10,15 +10,15 @@ import java.util.Objects;
 public class LessonKey implements Serializable {
 
     @Column(name = "id",nullable = false)
-    int id;
+    int lessonId;
 
     @Column(name = "course_id",nullable = false)
     int courseId;
 
     LessonKey(){}
 
-    public LessonKey(int id,int courseId){
-        this.id = id;
+    public LessonKey(int lessonId,int courseId){
+        this.lessonId = lessonId;
         this.courseId = courseId;
     }
 
@@ -27,12 +27,16 @@ public class LessonKey implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LessonKey that = (LessonKey) o;
-        return id == that.id && courseId == that.courseId;
+        return lessonId == that.lessonId && courseId == that.courseId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id,courseId);
+        return Objects.hash(lessonId,courseId);
+    }
+
+    public int getId() {
+        return lessonId;
     }
 
 }

@@ -8,6 +8,16 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User {
+
+    public User(){}
+
+    public User(String email,String passwordHash,String displayName,Role role){
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.displayName = displayName;
+        this.role = role;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

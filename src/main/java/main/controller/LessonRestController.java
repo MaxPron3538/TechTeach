@@ -5,6 +5,8 @@ import main.logic.entities.*;
 import main.logic.repositories.CourseRepository;
 import main.logic.repositories.LessonRepository;
 import main.logic.repositories.UserRepository;
+import main.logic.services.JwtUserDetailsService;
+import main.logic.services.LessonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,63 +19,47 @@ import java.util.Optional;
 @RequestMapping("/lessons")
 public class LessonRestController {
 
-    @Autowired
-    LessonRepository lessonRepository;
 
     @Autowired
-    CourseRepository courseRepository;
+    LessonService lessonService;
 
     @Autowired
-    UserRepository userRepository;
+    JwtUserDetailsService userDetailsService;
 
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
     @GetMapping("")
     public List<Lesson> getAllLessons(){
-        return lessonRepository.findAll();
+        return lessonService.getAllLessons();
     }
 
     @PostMapping("/{courseId}")
     public ResponseEntity<?> addLesson(@RequestBody Lesson lesson,@RequestHeader("Authorization") String token,@PathVariable int courseId){
         String email = jwtTokenUtil.getUsernameFromToken(token);
-        User user = userRepository.findByEmail(email);
+        User user = userDetailsService.getUser(email);
 
         if(user.getRole() == Role.teacher) {
-            Optional<Lesson> optionalLesson = lessonRepository.findAll().stream().filter(s -> s.getName().equals(lesson.getName())).findAny();
+            Optional<Lesson> optionalLesson = lessonService.getLessonByContent(lesson.getName());
 
-            if (!optionalLesson.isPresent()) {
-                int lessonKey = lessonRepository.findAll().size() + 1;
-                Optional<Course> optionalCourse = courseRepository.findAll().stream().filter(s -> s.getId() == courseId).findAny();
-
-                if (optionalCourse.isPresent()) {
-                    lesson.setCourse(optionalCourse.get());
-                    lesson.setLessonId(new LessonKey(lessonKey, optionalCourse.get().getId()));
-                    lessonRepository.save(lesson);
-
+            if(optionalLesson.isPresent()){
+                if(lessonService.addLesson(lesson,courseId).isPresent()){
                     return new ResponseEntity<>(HttpStatus.OK);
                 }
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(null);
+            return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    @PutMapping("/{name}")
-    public ResponseEntity<?> updateLesson(@PathVariable String name,@RequestBody Lesson lesson,@RequestHeader("Authorization") String token){
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateLesson(@RequestBody Lesson lesson,@RequestHeader("Authorization") String token,@PathVariable int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
-        User user = userRepository.findByEmail(email);
+        User user = userDetailsService.getUser(email);
 
         if(user.getRole() == Role.teacher){
-            Lesson updateLesson = lessonRepository.findAll().stream().filter(s -> s.getName().equals(name)).findAny().orElse(null);
-
-            if(updateLesson != null){
-                updateLesson.setName(lesson.getName());
-                updateLesson.setDescription(lesson.getDescription());
-                updateLesson.setVideoUrl(lesson.getVideoUrl());
-                lessonRepository.save(updateLesson);
-
+            if(lessonService.updateLesson(lesson,id).isPresent()){
                 return new ResponseEntity<>(HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -81,32 +67,51 @@ public class LessonRestController {
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    @DeleteMapping("/{name}")
-    public ResponseEntity<?> deleteLesson(@PathVariable String name,@RequestHeader("Authorization") String token){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteLesson(@RequestHeader("Authorization") String token,@PathVariable int id){
         String email = jwtTokenUtil.getUsernameFromToken(token);
-        User user = userRepository.findByEmail(email);
+        User user = userDetailsService.getUser(email);
 
         if(user.getRole() == Role.teacher){
-            Optional<Lesson> optionalLesson = lessonRepository.findAll().stream().filter(s -> s.getName().equals(name)).findAny();
-
-            if(optionalLesson.isPresent()){
-                lessonRepository.delete(optionalLesson.get());
+            if(lessonService.deleteLesson(id).isPresent()){
                 return new ResponseEntity<>(HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return  new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/{content}")
-    public ResponseEntity<?> getLessonByContent(@PathVariable String content){
-        Optional<Lesson> optionalLesson = lessonRepository.findAll()
-                .stream().filter(s -> s.getName().contains(content) || s.getDescription().contains(content)).findAny();
+    @GetMapping("id/{id}")
+    public ResponseEntity<?> getLessonById(@RequestHeader("Authorization") String token,@PathVariable int id) {
+        String email = jwtTokenUtil.getUsernameFromToken(token);
+        User user = userDetailsService.getUser(email);
 
-        if(optionalLesson.isPresent()){
-            return new ResponseEntity<>(optionalLesson.get(),HttpStatus.OK);
+        if (user.getRole() == Role.teacher) {
+            Optional<Lesson> optionalLesson = lessonService.getLessonById(id);
+
+            if(optionalLesson.isPresent()){
+                return  new ResponseEntity<>(optionalLesson.get(),HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("content/{content}")
+    public ResponseEntity<?> getLessonByContent(@RequestHeader("Authorization") String token,@PathVariable String content){
+        String email = jwtTokenUtil.getUsernameFromToken(token);
+        User user = userDetailsService.getUser(email);
+
+        if(user.getRole() == Role.teacher) {
+            Optional<Lesson> optionalLesson = lessonService.getLessonByContent(content);
+
+            if(optionalLesson.isPresent()){
+                return new ResponseEntity<>(optionalLesson.get(),HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
 }
+
